@@ -1,0 +1,34 @@
+# azure-pipelines.yml
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.10'
+    addToPath: true
+
+- script: |
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
+    # Añadir la raíz del repo al PYTHONPATH para que Python encuentre src
+    export PYTHONPATH=$(System.DefaultWorkingDirectory)
+    # Ejecutar tests con pytest, generar reporte de cobertura y XML para Azure DevOps
+    python -m pytest --cov=src --cov-report=xml --junitxml=results.xml
+  displayName: 'Instalar dependencias y ejecutar pytest'
+
+- task: PublishTestResults@2
+  inputs:
+    testResultsFiles: '**/results.xml'
+    testRunTitle: 'Resultados pytest'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: '$(System.DefaultWorkingDirectory)'
+    artifactName: 'sources'
+    publishLocation: 'Container'
