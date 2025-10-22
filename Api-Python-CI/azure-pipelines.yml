@@ -8,25 +8,38 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
+# Usar la versión de Python
 - task: UsePythonVersion@0
   inputs:
     versionSpec: '3.10'
     addToPath: true
 
+# Instalar dependencias y ejecutar tests
 - script: |
+    # Confirmar ubicación y listar archivos (opcional para depuración)
+    echo "Directorio de trabajo: $(System.DefaultWorkingDirectory)"
+    ls -la $(System.DefaultWorkingDirectory)
+
+    # Actualizar pip
     python -m pip install --upgrade pip
-    pip install -r requirements.txt
+
+    # Instalar pytest y pytest-cov directamente
+    pip install pytest pytest-cov
+
     # Añadir la raíz del repo al PYTHONPATH para que Python encuentre src
     export PYTHONPATH=$(System.DefaultWorkingDirectory)
+
     # Ejecutar tests con pytest, generar reporte de cobertura y XML para Azure DevOps
     python -m pytest --cov=src --cov-report=xml --junitxml=results.xml
   displayName: 'Instalar dependencias y ejecutar pytest'
 
+# Publicar resultados de tests
 - task: PublishTestResults@2
   inputs:
     testResultsFiles: '**/results.xml'
     testRunTitle: 'Resultados pytest'
 
+# Publicar artefactos (opcional, si quieres guardar todo el repo)
 - task: PublishBuildArtifacts@1
   inputs:
     pathToPublish: '$(System.DefaultWorkingDirectory)'
