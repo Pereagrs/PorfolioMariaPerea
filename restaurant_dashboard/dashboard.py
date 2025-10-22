@@ -39,7 +39,7 @@ st.write("Rating promedio:", round(filtered['Rating'].mean(),2))
 
 #Gráfico interactivo
 fig = px.scatter(filtered, x='Reviews', y='Rating', size='PriceRange',
-                 color='Cuisine', hover_data=['Name'])
+                 color='Cuisine', hover_data=['Name'], )
 st.plotly_chart(fig)
 
 
@@ -52,7 +52,10 @@ st.plotly_chart(fig)
 #hover_data=['Name'] al pasar el ratón, muestra el nombre del restaurante.
 #st.plotly_chart(fig) muestra el gráfico dentro del dashboard.
 
-#Top 10 restaurantes
+# Top 10 restaurantes
 top10 = filtered.sort_values(by='Rating', ascending=False).head(10)
 st.write("Top 10 restaurantes:")
-st.dataframe(top10[['Name', 'Cuisine', 'Rating', 'Reviews', 'PriceRange']])
+
+# Mostrar tabla sin la columna de índice
+st.dataframe(top10[['Name', 'Cuisine', 'Rating', 'Reviews', 'PriceRange']], hide_index=True)
+
